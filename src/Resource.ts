@@ -174,11 +174,14 @@ export class Resource extends BaseResource {
       const type = property.type();
       const foreignColumnName = property.foreignColumnName();
 
-      if (type === 'reference' && foreignColumnName) {
-        preparedParams[foreignColumnName] = convertParam(property, this.model.fields, param);
-
-        // eslint-disable-next-line no-continue
-        continue;
+      if (type === 'reference') {
+        if (foreignColumnName) {
+          preparedParams[foreignColumnName] = convertParam(property, this.model.fields, param);
+          // eslint-disable-next-line no-continue
+          continue;
+        } else {
+          preparedParams[property.path()] = { set: param };
+        }
       }
 
       if (property.isArray()) {
@@ -198,7 +201,7 @@ export class Resource extends BaseResource {
       const param = flat.get(params, property.path());
       const key = property.path();
 
-      if (param !== undefined && property.type() !== 'reference') {
+      if (param !== undefined) {
         preparedValues[key] = param;
         // eslint-disable-next-line no-continue
         continue;
